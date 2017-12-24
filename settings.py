@@ -3,13 +3,24 @@ import logging.config
 import os
 
 # Lift simulator settings
-MIN_FLOW_NUM = 5             # Minimal flow number
-MAX_FLOW_NUM = 20            # Maximum flow number
-DEFAULT_FLOW_NUM = 9         # Default flow number
-DEFAULT_FLOW_HEIGHT = 3      # Default flow height (meter)
-DEFAULT_LIFT_SPEED = 1.5     # Default lift speed (meter per second)
-DEFAULT_DOOR_TIME = 2        # Default time of door opening/closing (second)
-DOOR_WAIT_TIMEOUT = 3        # Time while lift is wait a command with open door (second)
+MIN_FLOOR_NUM = 5             # Minimal floor number
+MAX_FLOOR_NUM = 20            # Maximum floor number
+
+MIN_FLOOR_HEIGHT = 2.0        # Minimal floor height
+MAX_FLOOR_HEIGHT = 10.0       # Maximum floor height
+
+MIN_LIFT_SPEED = 0.1          # Minimal lift speed
+MAX_LIFT_SPEED = 5.0          # Maximum lift speed
+
+MIN_DOOR_TIME = 0.1           # Minimal door opening/closing time
+MAX_DOOR_TIME = 10.0          # Maximum door opening/closing time
+
+
+DEFAULT_FLOOR_NUM = 9         # Default floor number
+DEFAULT_FLOOR_HEIGHT = 3.0    # Default floor height (meter)
+DEFAULT_LIFT_SPEED = 1.5      # Default lift speed (meter per second)
+DEFAULT_DOOR_TIME = 2.0       # Default time of door opening/closing (second)
+DOOR_WAIT_TIMEOUT = 3.0       # Time while lift is wait a command with open door (second)
 
 # Logger settings
 BASE_LOGGER = 'app_server_mb'
