@@ -1,2 +1,2 @@
-# auto_lift_manager
-Console automated lift manager
+# Manual description
+Console automated lift simulator(CALS) is simple version industrial lift
