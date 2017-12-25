@@ -25,8 +25,9 @@ class LiftStateMachine(object):
         self.door_time = door_time
         self.current_lift_pos = None
         self.current_passenger_pos = 0
+        self.current_dest_floor = 1
         self.lsm = None
-        self.lift_time = 0
+        self.lift_move_time = 0
 
         # Initialize the state machine
         self.machine = Machine(model=self, states=st.lift_states, send_event=True,
@@ -52,14 +53,14 @@ class LiftStateMachine(object):
 
         :return: None
         """
-        lift_direction = event_data.kwargs.get('lift_direction', 1)
+        lift_direction = event_data.kwargs.get('lift_direction', True)
         if lift_direction:
             floors = range(self.current_lift_pos, self.current_passenger_pos + 1)
         else:
             floors = range(self.current_lift_pos, self.current_passenger_pos - 1, -1)
 
         for floor in floors:
-            time.sleep(self.lift_time)
+            time.sleep(self.lift_move_time)
             self.current_lift_pos = floor
             logger.debug(f'Current lift position: {floor} floor')
 
@@ -80,23 +81,12 @@ class LiftStateMachine(object):
         """
         self.lsm = lsm
         self.lsm.trigger(st.INIT_LIFT_POSITION_TRIGGER)
-        logger.debug(f'Lift state: {self.lsm.state}')
-        self.lift_time = self.calculate_floor_print_time()
+        self.lift_move_time = self.calculate_floor_print_time()
         while True:
-            input_passenger_pos = int(input(f'On which floor are you now? '
-                                            f'Input number from 1 to {self.floor_num}: '))
-            if not self.validate_input_passenger_pos(input_passenger_pos):
-                break
-            else:
-                self.current_passenger_pos = input_passenger_pos
-
-            input_cmd = input("For call the lift input 'start': ")
-            if input_cmd.lower() == 'start':
-                lift_direction = 0 if self.current_passenger_pos < self.current_lift_pos else 1
-            else:
-                break
-            self.lsm.trigger(st.GET_LIFT_TRIGGER, lift_direction=lift_direction)
+            self.input_passenger_floor_position()
+            self.lsm.trigger(st.GET_LIFT_TRIGGER, lift_direction=self.input_call_lift_command())
             self.lsm.trigger(st.OPEN_LIFT_DOOR_TRIGGER)
+            self.current_dest_floor = self.input_destination_floor()
 
     def stop_lift(self):
         """
@@ -116,16 +106,67 @@ class LiftStateMachine(object):
         """
         return float(self.floor_height / self.lift_speed)
 
-    def validate_input_passenger_pos(self, passenger_pos):
+    def input_passenger_floor_position(self):
         """
         This method validate input current passenger position
+          and validate input data
 
-        :param int passenger_pos: current floor
+        :return: None
+        """
+        wrong_num, input_passenger_pos = True, -1
+        while wrong_num:
+            try:
+                input_passenger_pos = int(input(f'On which floor are you now? '
+                                                f'Input number from 1 to {self.floor_num}: '))
+                wrong_num = \
+                    True if input_passenger_pos <= 0 or input_passenger_pos > self.floor_num else False
+            except ValueError:
+                pass
+            if wrong_num:
+                logger.debug(f'Wrong input data. Floor number should be:'
+                             f' 0 < {input_passenger_pos} <= {self.floor_num}')
+            else:
+                self.current_passenger_pos = input_passenger_pos
+                break
 
-        :return: result of checking
+    def input_destination_floor(self):
+        """
+        This method allow to input destination floor number
+          and validate input data
+
+        :return input_floor_num: destination floor number
+        :rtype: int
+        """
+        wrong_num, input_floor_num = True, -1
+        while wrong_num:
+            try:
+                input_floor_num = int(input(f'CHOOSE DESTINATION FLOOR. '
+                                            f'Input number from 1 to {self.floor_num}: '))
+                wrong_num = \
+                    True if input_floor_num <= 0 or input_floor_num > self.floor_num else False
+            except ValueError:
+                pass
+            if wrong_num:
+                logger.debug(f'Wrong input data. Floor number should be:'
+                             f' 0 < {input_floor_num} <= {self.floor_num}')
+
+        return input_floor_num
+
+    def input_call_lift_command(self):
+        """
+        This method allow to input 'START' command
+          and validate input data
+
+        :return: lift direction - if lift is upper than you - True, else - False
         :rtype: bool
         """
-        return False if passenger_pos < 0 or passenger_pos > self.floor_num else True
+        wrong_num, input_cmd = True, ""
+        while wrong_num:
+            input_cmd = input("For call the lift input 'start': ")
+            if input_cmd.lower() == 'start':
+                return False if self.current_passenger_pos < self.current_lift_pos else True
+            else:
+                logger.debug(f'Wrong input data. Input command should be: "start" OR "START"')
 
 
 def main():
