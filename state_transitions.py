@@ -20,39 +20,26 @@ lift_transitions = [
     },
     {
         'trigger': GET_LIFT_TRIGGER,
-        'source': 'init_lift_position',
+        'source': ['init_lift_position', 'close_lift_door'],
         'dest': 'get_lift',
         'after': 'wait_while_lift_come'
     },
     {
         'trigger': OPEN_LIFT_DOOR_TRIGGER,
-        'source': 'get_lift',
+        'source': ['get_lift', 'go_to_chosen_floor'],
         'dest': 'open_lift_door',
-        'after': 'open_lift_door'
+        'after': 'operate_lift_door'
     },
     {
         'trigger': CLOSE_LIFT_DOOR_TRIGGER,
         'source': 'open_lift_door',
         'dest': 'close_lift_door',
-        'after': 'close_lift_door'
-    },
-    {
-        'trigger': CHOOSE_FLOOR_NUM_TRIGGER,
-        'source': 'close_lift_door',
-        'dest': 'choose_floor_num',
-        'after': 'check_chosen_flow_num'
+        'after': 'operate_lift_door'
     },
     {
         'trigger': GO_TO_CHOSEN_FLOOR_TRIGGER,
-        'source': 'choose_floor_num',
-        'dest': 'go_to_selected_floor',
+        'source': 'close_lift_door',
+        'dest': 'go_to_chosen_floor',
         'after': 'go_to_chosen_floor'
     },
-    {
-        'trigger': OPEN_LIFT_DOOR_TRIGGER,
-        'source': 'go_to_chosen_floor',
-        'dest': 'open_lift_door',
-        'after': 'open_door_and_wait'
-    },
-
 ]

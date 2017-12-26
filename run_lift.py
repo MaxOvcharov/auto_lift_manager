@@ -64,14 +64,38 @@ class LiftStateMachine(object):
             self.current_lift_pos = floor
             logger.debug(f'Current lift position: {floor} floor')
 
-    def open_lift_door(self, event_data):
+    def operate_lift_door(self, event_data):
         """
-        This method waiting while lift door is opening.
+        This method waiting while lift door is opening/closing.
 
         :return: None
         """
-        time.sleep(self.door_time)
-        logger.debug('The door is open. Come in...')
+        open_door = event_data.kwargs.get('open_door', False)
+        if open_door:
+            logger.debug('OPENING DOOR...')
+            time.sleep(self.door_time)
+            logger.debug('The door is OPEN')
+        else:
+            logger.debug('CLOSING DOOR...')
+            time.sleep(self.door_time)
+            logger.debug('The door is CLOSE')
+
+    def go_to_chosen_floor(self, event_data):
+        """
+        This method move lift to the chosen destination floor.
+
+        :return: None
+        """
+        if self.current_dest_floor > self.current_lift_pos:
+            floors = range(self.current_lift_pos, self.current_dest_floor + 1)
+        else:
+            floors = range(self.current_lift_pos, self.current_dest_floor - 1, -1)
+
+        for floor in floors:
+            time.sleep(self.lift_move_time)
+            self.current_lift_pos = floor
+            logger.debug(f'Current lift position: {floor} floor')
+        self.current_passenger_pos = floor
 
     def start_lift(self, lsm):
         """
@@ -82,11 +106,17 @@ class LiftStateMachine(object):
         self.lsm = lsm
         self.lsm.trigger(st.INIT_LIFT_POSITION_TRIGGER)
         self.lift_move_time = self.calculate_floor_print_time()
+        self.input_passenger_floor_position()
         while True:
-            self.input_passenger_floor_position()
             self.lsm.trigger(st.GET_LIFT_TRIGGER, lift_direction=self.input_call_lift_command())
-            self.lsm.trigger(st.OPEN_LIFT_DOOR_TRIGGER)
+            self.lsm.trigger(st.OPEN_LIFT_DOOR_TRIGGER, open_door=True)
             self.current_dest_floor = self.input_destination_floor()
+            if self.current_dest_floor:
+                self.lsm.trigger(st.CLOSE_LIFT_DOOR_TRIGGER)
+                self.lsm.trigger(st.GO_TO_CHOSEN_FLOOR_TRIGGER)
+                self.lsm.trigger(st.OPEN_LIFT_DOOR_TRIGGER, open_door=True)
+                time.sleep(s.DOOR_WAIT_TIMEOUT)
+                self.lsm.trigger(st.CLOSE_LIFT_DOOR_TRIGGER)
 
     def stop_lift(self):
         """

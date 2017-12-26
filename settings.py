@@ -20,7 +20,7 @@ DEFAULT_FLOOR_NUM = 9         # Default floor number
 DEFAULT_FLOOR_HEIGHT = 3.0    # Default floor height (meter)
 DEFAULT_LIFT_SPEED = 1.5      # Default lift speed (meter per second)
 DEFAULT_DOOR_TIME = 2.0       # Default time of door opening/closing (second)
-DOOR_WAIT_TIMEOUT = 3.0       # Time while lift is wait a command with open door (second)
+DOOR_WAIT_TIMEOUT = 4.0       # Time while lift is wait a command with open door (second)
 
 # Logger settings
 BASE_LOGGER = 'app_server_mb'
