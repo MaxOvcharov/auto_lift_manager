@@ -1,9 +1,7 @@
-
 INIT_LIFT_POSITION_TRIGGER = 'INIT_LIFT_POSITION'
 GET_LIFT_TRIGGER = 'GET_LIFT'
 OPEN_LIFT_DOOR_TRIGGER = 'OPEN_LIFT_DOOR'
 CLOSE_LIFT_DOOR_TRIGGER = 'CLOSE_LIFT_DOOR'
-CHOOSE_FLOOR_NUM_TRIGGER = 'CHOOSE_FLOOR_NUM'
 GO_TO_CHOSEN_FLOOR_TRIGGER = 'GO_TO_CHOSEN_FLOOR'
 
 lift_states = [
@@ -26,7 +24,7 @@ lift_transitions = [
     },
     {
         'trigger': OPEN_LIFT_DOOR_TRIGGER,
-        'source': ['get_lift', 'go_to_chosen_floor'],
+        'source': "*",
         'dest': 'open_lift_door',
         'after': 'operate_lift_door'
     },

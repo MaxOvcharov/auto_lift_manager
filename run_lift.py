@@ -1,3 +1,10 @@
+"""
+This is a simple lift simulator.
+It is based on a finite state machine - https://github.com/pytransitions
+
+:author: Max Ovcharov
+:e-mail: ovcharovmax@yandex.ru
+"""
 import sys
 import time
 
@@ -18,7 +25,16 @@ class LiftStateMachine(object):
           control the lift simulation.
     """
     def __init__(self, floor_num, floor_height, lift_speed, door_time):
+        """
+        This method init Lift State Machine instance
 
+        :param int floor_num: number of floors
+        :param float floor_height: height of one floor
+        :param float lift_speed: speed of the lift
+        :param float door_time: time of door opening/closing
+
+        :return: None
+        """
         self.floor_num = floor_num
         self.floor_height = floor_height
         self.lift_speed = lift_speed
@@ -28,6 +44,7 @@ class LiftStateMachine(object):
         self.current_dest_floor = 1
         self.lsm = None
         self.lift_move_time = 0
+        self.lift_is_active = None
 
         # Initialize the state machine
         self.machine = Machine(model=self, states=st.lift_states, send_event=True,
@@ -60,9 +77,11 @@ class LiftStateMachine(object):
             floors = range(self.current_lift_pos, self.current_passenger_pos - 1, -1)
 
         for floor in floors:
+            self.lift_is_active = True
             time.sleep(self.lift_move_time)
             self.current_lift_pos = floor
             logger.debug(f'Current lift position: {floor} floor')
+        self.lift_is_active = False
 
     def operate_lift_door(self, event_data):
         """
@@ -92,10 +111,12 @@ class LiftStateMachine(object):
             floors = range(self.current_lift_pos, self.current_dest_floor - 1, -1)
 
         for floor in floors:
+            self.lift_is_active = True
             time.sleep(self.lift_move_time)
             self.current_lift_pos = floor
             logger.debug(f'Current lift position: {floor} floor')
         self.current_passenger_pos = floor
+        self.lift_is_active = False
 
     def start_lift(self, lsm):
         """
@@ -120,12 +141,18 @@ class LiftStateMachine(object):
 
     def stop_lift(self):
         """
-        This method is for safe lift stop
+        This method is for safely lift stop
 
         :return: None
         """
-        logger.debug(f'\nSTOPPING LIFT... Lift state: {self.lsm.state}, '
-                     f'current floor: {self.current_lift_pos}')
+        if self.lift_is_active is not None:
+            if self.lift_is_active:
+                logger.debug(f'STOPPING LIFT... ')
+                logger.debug(f'WARNING! CALL 911. Lift state: {self.lsm.state}, '
+                             f'current floor: {self.current_lift_pos}')
+            else:
+                logger.debug(f'\nUNLOCKING LIFT... ')
+                self.lsm.trigger(st.OPEN_LIFT_DOOR_TRIGGER, open_door=True)
 
     def calculate_floor_print_time(self):
         """
@@ -142,6 +169,8 @@ class LiftStateMachine(object):
           and validate input data
 
         :return: None
+
+        :raise: ValueError - wrong type of the input data.
         """
         wrong_num, input_passenger_pos = True, -1
         while wrong_num:
@@ -152,12 +181,13 @@ class LiftStateMachine(object):
                     True if input_passenger_pos <= 0 or input_passenger_pos > self.floor_num else False
             except ValueError:
                 pass
-            if wrong_num:
-                logger.debug(f'Wrong input data. Floor number should be:'
-                             f' 0 < {input_passenger_pos} <= {self.floor_num}')
             else:
-                self.current_passenger_pos = input_passenger_pos
-                break
+                if wrong_num:
+                    logger.debug(f'WARNING! Floor number should be:'
+                                 f' 0 < {input_passenger_pos} <= {self.floor_num}')
+                else:
+                    self.current_passenger_pos = input_passenger_pos
+                    break
 
     def input_destination_floor(self):
         """
@@ -166,21 +196,25 @@ class LiftStateMachine(object):
 
         :return input_floor_num: destination floor number
         :rtype: int
+
+        :raise: ValueError - wrong type of the input data.
         """
-        wrong_num, input_floor_num = True, -1
+        wrong_num, in_floor_num = True, -1
         while wrong_num:
             try:
-                input_floor_num = int(input(f'CHOOSE DESTINATION FLOOR. '
-                                            f'Input number from 1 to {self.floor_num}: '))
-                wrong_num = \
-                    True if input_floor_num <= 0 or input_floor_num > self.floor_num else False
+                in_floor_num = int(input(f'CHOOSE DESTINATION FLOOR. '
+                                         f'Input number from 1 to {self.floor_num}: '))
+                if self.current_lift_pos != in_floor_num and 0 < in_floor_num <= self.floor_num:
+                    wrong_num = False
             except ValueError:
                 pass
-            if wrong_num:
-                logger.debug(f'Wrong input data. Floor number should be:'
-                             f' 0 < {input_floor_num} <= {self.floor_num}')
+            else:
+                if wrong_num:
+                    logger.debug(f"WARNING! Floor number should be:"
+                                 f" 0 < {in_floor_num} <= {self.floor_num} "
+                                 f"AND can't be equal current lift position")
 
-        return input_floor_num
+        return in_floor_num
 
     def input_call_lift_command(self):
         """
@@ -196,7 +230,7 @@ class LiftStateMachine(object):
             if input_cmd.lower() == 'start':
                 return False if self.current_passenger_pos < self.current_lift_pos else True
             else:
-                logger.debug(f'Wrong input data. Input command should be: "start" OR "START"')
+                logger.debug(f'WARNING! Input command should be: "start" OR "START"')
 
 
 def main():
@@ -204,6 +238,8 @@ def main():
     This method is the main entry point of program
 
     :return: None
+
+    :raise: KeyboardInterrupt - handle CTRL+C command.
     """
     try:
         args = parse_args()

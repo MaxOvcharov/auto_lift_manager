@@ -32,7 +32,7 @@ def parse_args():
                              f' Default - {s.DEFAULT_LIFT_SPEED}')
     parser.add_argument('-t', '--door_time', type=float, nargs='?',
                         default=s.DEFAULT_DOOR_TIME,
-                        help=f'time of door opening/closing:'
+                        help=f'Time of door opening/closing:'
                              f'{s.MIN_LIFT_SPEED} <= s <= {s.MAX_LIFT_SPEED} (sec).'
                              f' Default - {s.DEFAULT_DOOR_TIME}')
     args = parser.parse_args()
