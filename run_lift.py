@@ -1,6 +1,6 @@
 """
 This is a simple lift simulator.
-It is based on a finite state machine - https://github.com/pytransitions
+It is based on a finite state machine - https://github.com/pytransitions/transitions
 
 :author: Max Ovcharov
 :e-mail: ovcharovmax@yandex.ru

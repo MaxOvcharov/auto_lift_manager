@@ -1,6 +1,6 @@
 ## Description of the principle of the lift:
 
-This is a simple lift simulator. It is based on a finite state machine - [pytransitions](https://github.com/pytransitions)
+This is a simple lift simulator. It is based on a finite state machine - [pytransitions](https://github.com/pytransitions/transitions)
 
 #### The lift has the following conditions:
 ```
