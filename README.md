@@ -33,7 +33,8 @@ At any time, you can stop the lift by pressing CTRL + C. Depending on the curren
 
 ### Unit test
 There are some unit tests in this repo.
-run test
+
+Example:
 ```bash
 pytest -vv --cov=run_lift --cov-report term-missing tests/
 ```
