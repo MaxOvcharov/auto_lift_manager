@@ -24,8 +24,16 @@ After the lift arrives to your floor, the door opens, with the delay set.
 
 Next you need to enter the floor number to which you need to climb. You can not enter a nonexistent floor or climb to the floor where you are now.
 
+Example:
+```bash
+python run_lift.py --floor_num 10 --floor_height 2 --lift_speed 2 --door_time 1
+``` 
 ###Safely lift stop
 At any time, you can stop the lift by pressing CTRL + C. Depending on the current position of the lift, it will be safely stopped.
 
 ###Unit test
 There are some unit tests in this repo.
+run test
+```bash
+pytest -vv --cov=run_lift --cov-report term-missing tests/
+```
