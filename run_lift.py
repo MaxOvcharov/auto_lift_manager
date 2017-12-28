@@ -39,7 +39,7 @@ class LiftStateMachine(object):
         self.floor_height = floor_height
         self.lift_speed = lift_speed
         self.door_time = door_time
-        self.current_lift_pos = None
+        self.current_lift_pos = -1
         self.current_passenger_pos = 0
         self.current_dest_floor = 1
         self.lsm = None
@@ -58,7 +58,7 @@ class LiftStateMachine(object):
 
         :return: None
         """
-        if self.current_lift_pos is None:
+        if self.current_lift_pos == -1:
             self.current_lift_pos = randint(s.MIN_FLOOR_NUM, self.floor_num)
         logger.debug(f'Lift is on the {self.current_lift_pos} floor')
 
